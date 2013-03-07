@@ -1,0 +1,128 @@
+<html>
+<head>
+<meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0">
+<script src="/socket.io/socket.io.js"></script>
+<script src="/jquery-min.js"></script>
+<LINK href="/style.css" rel="stylesheet" type="text/css">
+
+</head>
+<body>
+
+<script>
+var items, currentId=-1;
+
+function buildList() {
+	var list = "";
+	for (var i=0; i < items.length; i++) {
+		if (items[i].id == currentId){
+			list = list + "<li class='current'>";
+		} else {
+			list = list + "<li >";
+		}
+
+  		list = list + items[i].text;
+
+  		if (items[i].remove){
+  			list = list + " <a class='removeItem' href='/remove/" + items[i].id + "'> X </a>"; //
+  		} 
+  		list = list + "</li>";
+  	}
+  	return list;
+}
+  var socket = io.connect('http://10.7.7.1');
+  socket.on('current', function (data) {
+  	currentId = data.id;
+  	console.log("Current item: " + data.id);
+  	$("#list").html(buildList());
+  });
+
+  socket.on('add', function (data) {
+  	items.push(data.item);
+  	console.log("Adding item: " + data.item.id);
+  	$("#list").html(buildList());
+  });
+
+  socket.on('remove', function (data) {
+  	for (var i=0; i < items.length; i++){
+  		if (items[i].id == data.id){
+  			items.splice(i,1);
+  			console.log("Removed item: " + data.id);
+  			break;
+  		}
+  	}
+  	$("#list").html(buildList());
+  });
+
+  socket.on('update', function (data) {
+  	for (var i=0; i < items.length; i++){
+  		if (items[i].id == data.item.id){
+  			items[i] = data.item;
+  			console.log("Updated item: " + data.item.id);
+  			break;
+  		}
+  	}
+  	$("#list").html(buildList());
+  });
+
+
+  socket.on('items', function (data) {
+  	items = data.items;
+  	$("#list").html(buildList());
+    console.log("Recieved " + items.length + " items.");
+  });
+
+  $(document).ready(function(){
+
+		$("#myForm").submit(function(){
+
+			$.ajax({
+				type: "POST",
+				url: "/add",
+				data: $("#myForm").serialize(),
+				dataType: "json",
+
+				success: function(msg){
+					$("#message").val('');
+				},
+				error: function(){
+
+				}
+			});
+
+			//make sure the form doesn't post
+			return false;
+
+		});
+		$("a.removeItem").live('click',function(e){
+			e.preventDefault();
+			$.ajax({
+				type: "GET",
+				url: e.target.href,
+				data: $("#myForm").serialize(),
+				dataType: "json",
+
+				success: function(msg){
+					$("#message").val('');
+				},
+				error: function(){
+
+				}
+			});
+
+			//make sure the form doesn't post
+			return false;
+
+		});
+
+	})
+</script>
+
+
+<form id="myForm">
+<p>Add a Message:</p>
+<input type="text" id="message" name="message" />
+<input type="submit" value="Submit" />
+</form>
+<ul id="list"></ul>
+</body>
+</html

@@ -1,0 +1,15 @@
+{
+    "name": "pi-place",
+    "version": "1.0.0",
+    "author": "Luke Berndt <luke@lukeberndt.com>",
+    "description": "Provides an interactive web-page that allows you to update messages to display on an LED Message Board",
+    "main": "./main.js",
+	  "dependencies" : {
+	    "pi-led" :  "1.x.x",
+	    "npr-news" :  "1.x.x",
+	    "espn-headlines"    :  "1.x.x",
+	    "express"	:	"3.x.x",
+	    "node-wmata" : "https://github.com/cvee/node-wmata/tarball/master",
+	    "socket.io"	:	"0.9.x"
+	  }
+}
